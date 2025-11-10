@@ -2,7 +2,8 @@
 
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { Card } from "@/components/ui/card" 
+import Typewriter from "typewriter-effect"
 
 export default function WritingImproverPage() {
   const [text, setText] = useState("")
@@ -29,7 +30,7 @@ export default function WritingImproverPage() {
   const handleTextChange = (event: React.ChangeEvent<HTMLTextAreaElement>) =>{
       const newText = event.target.value
       setText(newText)
-      const wordCount = newText.trim() === "" ? 0: text.trim().split(/\s+/).length
+      const wordCount = newText.trim() === "" ? 0: newText.trim().split(/\s+/).length
       setWordCount(wordCount)
       const charCountNoSpaces = newText.replace(/\s+/g, '').length
       setCharCountNoSpaces(charCountNoSpaces)
@@ -39,8 +40,19 @@ export default function WritingImproverPage() {
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <div className="max-w-7xl mx-auto">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Writing Improver</h1>
-          <p className="text-gray-600">Paste your writing to get feedback</p>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            AI Writing Improver
+          </h1>
+          <p className="text-gray-600">
+            <Typewriter 
+              options={{
+                strings: ["Enhance your writing with AI-powered suggestions!", "Improve clarity, grammar, and style effortlessly!", "Powered by Gemini"],
+                autoStart: true,
+                loop: true,
+                delay: 100,
+              }} 
+            />
+          </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
