@@ -12,20 +12,39 @@ export default function WritingImproverPage() {
   const [loading, setLoading] = useState(false)
   const [feedback, setFeedback] = useState<string[] | null>(null)
 
-  const handleStartReview = () => {
-    setLoading(true)
-    // Simulate API call
-    setTimeout(() => {
-      setFeedback([
-        "Check your grammar in sentence 2.",
-        "Consider varying sentence length.",
-        "Use more active voice in paragraph 1.",
-        "Break up long sentences for clarity.",
-        "Add transitions between ideas.",
-      ])
+  const handleStartReview = async () => {
+  setLoading(true)
+  setFeedback(null) // Clear previous feedback
+  
+  try {
+    const response = await fetch('/api/review', { // Adjust this path to match your API route
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ text })
+    })
+    
+    const data = await response.json()
+      
+    if (!response.ok) {
+      console.error("API Error:", data)
+      alert(`Error: ${data.error || 'Something went wrong'}`)
       setLoading(false)
-    }, 1500)
-  } 
+      return
+    }
+    
+    if (data.suggestions) {
+      setFeedback(data.suggestions)
+    }
+    
+  } catch (error) {
+    console.error("Fetch error:", error)
+    alert("Failed to connect to API")
+  } finally {
+    setLoading(false)
+  }
+} 
 
   const handleTextChange = (event: React.ChangeEvent<HTMLTextAreaElement>) =>{
       const newText = event.target.value
@@ -43,7 +62,7 @@ export default function WritingImproverPage() {
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
             AI Writing Improver
           </h1>
-          <p className="text-gray-600">
+          <h3 className="text-gray-600">
             <Typewriter 
               options={{
                 strings: ["Enhance your writing with AI-powered suggestions!", "Improve clarity, grammar, and style effortlessly!", "Powered by Gemini"],
@@ -52,7 +71,7 @@ export default function WritingImproverPage() {
                 delay: 100,
               }} 
             />
-          </p>
+          </h3>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
