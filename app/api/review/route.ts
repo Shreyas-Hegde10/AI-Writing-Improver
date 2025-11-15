@@ -1,17 +1,47 @@
 import { NextResponse } from "next/server";
 import { GoogleGenAI } from "@google/genai";
 
+// Token Bucket Algo for Rate Limiting 
+//1.Define Bucket Type
+type Bucket = {
+    tokens: number 
+    lastRefill: number
+} 
+
+//2. Token Bucket Storage & Constants 
+const buckets: Record <string, Bucket> = {} 
+const CAPACITY = 10 
+const REFILL_RATE = 1
+
+//3. Getting correct bucket 
+function getBucket (ip: string): Bucket {
+    if(!buckets[ip]){
+        buckets[ip] = {tokens:CAPACITY, lastRefill: Date.now()}
+    }
+    return buckets[ip]
+} 
+
+//4. Function for allowing request 
+function allowRequest(ip:string): boolean{
+    const bucket = getBucket(ip)
+    const curr_time = Date.now()
+    const elapsed = (curr_time - bucket.lastRefill) / 1000 
+    const refill = elapsed * REFILL_RATE 
+
+    bucket.tokens = Math.min(CAPACITY, bucket.tokens + refill)
+    bucket.lastRefill = curr_time 
+
+    if (bucket.tokens >=1){
+        bucket.tokens -= 1 
+        return true
+    } else{
+        return false
+    }
+}
+
 export async function POST(req: Request){
     try{
         const {text} = await req.json() 
-        
-        if (!text || text.trim() === "") {
-            return NextResponse.json(
-                {error: "Text is required"}, 
-                {status: 400}
-            )
-        }
-        
         const genAI = new GoogleGenAI({
             apiKey: process.env.GEMINI_API_KEY
         })
