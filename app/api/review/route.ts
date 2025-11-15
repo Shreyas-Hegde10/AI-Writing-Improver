@@ -24,19 +24,21 @@ export async function POST(req: Request){
     Each suggestion should be one sentence long, specific, and helpful.
     Return ONLY a valid JSON array of strings without the JSON markdown.
     Text: """${text}"""
-    `
+    `, 
+            config : {
+                systemInstruction: 'You are a friendly, warm English teacher.'
+            }
         })
         
         const output = result.text
         
-        // Check if output exists
         if (!output) {
+            console.log("No output from Gemini")
             return NextResponse.json({
                 error: "No response from AI"
             }, { status: 500 })
         }
         
-        // Try to parse it as JSON
         let suggestions;
         try {
             suggestions = JSON.parse(output)
